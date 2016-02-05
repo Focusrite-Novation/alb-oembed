@@ -2,6 +2,8 @@
 
 namespace Alb\OEmbed;
 
+use GuzzleHttp\Client as HttpClient;
+
 /**
  * Class responsible for discovering oEmbed endpoints
  * See http://oembed.com/#section4
@@ -30,25 +32,26 @@ class Discovery
     {
         $links = $this->findLinks($html);
 
-        if ( ! $link = reset($links)) {
-            return;
+        // Choose which link to use in this order of preference:
+        $types = array(
+          'application/json+oembed' => Provider::TYPE_JSON,
+          'text/json+oembed' => Provider::TYPE_JSON,
+          'text/xml+oembed' => Provider::TYPE_XML,
+        );
+
+        foreach ($types as $mimetype => $type) {
+          foreach ($links as $link) {
+            if ($link['type'] == $mimetype) {
+              $url = $link['href'];
+              $type_found = $type;
+              break 2;
+            }
+          }
         }
 
-        $type = null;
-
-        switch($link['type']) {
-        case 'application/json+oembed':
-            $type = Provider::TYPE_JSON;
-            break;
-        case 'text/xml+oembed':
-            $type = Provider::TYPE_XML;
-            break;
-        }
-
-        $url = $link['href'];
         $endpoint = $this->getEndpointUrl($url);
 
-        return new Provider($endpoint, $type);
+        return new Provider($endpoint, $type_found);
     }
 
     public function fetchLinks($url)
@@ -64,15 +67,12 @@ class Discovery
 
         $links = array();
 
-        $types = array('application/json+oembed', 'text/xml+oembed');
-
         foreach($dom->getElementsByTagName('link') as $link) {
+
             if (!preg_match('#\balternat(e|ive)\b#', $link->getAttribute('rel'))) {
                 continue;
             }
-            if (!in_array($link->getAttribute('type'), $types)) {
-                continue;
-            }
+
             $links[] = array(
                 'type' => $link->getAttribute('type'),
                 'href' => $link->getAttribute('href'),
@@ -104,11 +104,9 @@ class Discovery
 
     protected function fetchUrl($url)
     {
-        $html = @file_get_contents($url);
-        if ( false === $html ) {
-            throw new \Exception( 'Failed to open stream: HTTP request failed' );
-        }
-        return $html;
+        $client = new HttpClient();
+        $res = $client->request('GET', $url);
+        return $res->getBody();
     }
 
     protected function parseHtml($html)
