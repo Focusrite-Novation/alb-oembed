@@ -1,11 +1,15 @@
 {
-    "name": "alb/oembed",
+    "name": "rupertj/oembed",
     "type": "library",
-    "description": "oEmbed consumer library",
+    "description": "oEmbed consumer library, forked from alb/oembed",
     "keywords": ["oembed"],
-    "homepage": "https://github.com/arnaud-lb/alb-oembed",
+    "homepage": "https://github.com/rupertj/alb-oembed",
     "license": "MIT",
     "authors": [
+        {
+            "name": "Rupert Jabelman",
+            "email": "rupert@jabelman.org"
+        }
         {
             "name": "Arnaud Le Blanc",
             "email": "arnaud.lb@gmail.com"
