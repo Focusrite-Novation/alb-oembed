@@ -1,9 +1,9 @@
 {
-    "name": "rupertj/oembed",
+    "name": "focusrite-novation/oembed",
     "type": "library",
     "description": "oEmbed consumer library, forked from alb/oembed",
     "keywords": ["oembed"],
-    "homepage": "https://github.com/rupertj/alb-oembed",
+    "homepage": "https://github.com/focusrite-novation/alb-oembed",
     "license": "MIT",
     "authors": [
         {
